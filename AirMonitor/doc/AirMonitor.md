@@ -1,10 +1,10 @@
 
-<img src="lungs-solid.svg" width="400px" alt="GeigerCounter" align="right" />
+<img src="lungs-solid.svg" width="320px" alt="GeigerCounter" align="right" />
 
-## About AirMonitor
+## About the ESP32 Air Quality Monitor
 
-* [AirMonitor]() is meant to keep you alive by monitoring your environment
-* Has sensors to relay temperature, humidity, light intensity, particule levels, CO2 levels, VOC levels and more...
+* The [Air Quality Monitor]() is meant to keep you alive by monitoring your environment
+* It has sensors to relay temperature, humidity, light intensity, particule levels, CO2 levels, VOC levels and much more...
 * Uses Bluetooth Low Energy (BLE) and has a limited range
 
 ## Features

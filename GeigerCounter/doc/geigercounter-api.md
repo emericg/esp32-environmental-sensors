@@ -1,13 +1,11 @@
 
-<img src="radiation-alt-solid.svg" width="400px" alt="GeigerCounter" align="right" />
+<img src="radiation-alt-solid.svg" width="320px" alt="GeigerCounter" align="right" />
 
-## About GeigerCounter
+## About the ESP32 Geiger Counter
 
-* [GeigerCounter]() is meant to keep you alive by monitoring ambiant radiation levels
-* Has Geiger Müller tube used for the detection of ionizing radiation
+* This [Geiger Counter]() is meant to keep you alive by monitoring ambient radiation levels
+* It has a Geiger Müller tube, used for the detection of ionizing radiation
 * Uses Bluetooth Low Energy (BLE) and has a limited range
-
-CAJOE boards are available from various Chinese manufacturers.
 
 ## Features
 

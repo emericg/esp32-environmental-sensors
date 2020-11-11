@@ -4,8 +4,8 @@ Custom firmware for **HiGrow ESP32 boards**. Tested with a Lilygo T-HiGrow v1.1
 
 HiGrow is a plant monitoring sensor platform using ESP32 chips. They are available on a couple of Chinese brands like LilyGo or Wemos
 
-Note that I would not recommend an HiGrow board for serious plant monitoring, but only for tinkering with an ESP32 board with onboard sensors.
-If you alredy have one however, this firmware might be useful!
+Note that I would not recommend an HiGrow board for any serious plant monitoring, but it's OK for tinkering with an ESP32 board with onboard sensors.
+However if you already have one, this firmware might be useful!
 
 
 ### Capabilities
