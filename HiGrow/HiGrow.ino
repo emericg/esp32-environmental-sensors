@@ -5,10 +5,6 @@
  * Other variants may need adjustments in order to work. Free to contact me
  * if you found such adjustment so we can set them this up properly in here!
  *
- * Note that I would not recommend an HiGrow board for serious plant monitoring,
- * but only for tinkering with an ESP32 board with onboard sensors.
- * If you alredy have one however, this firmware might be useful!
- *
  * Settings:
  * - 80 MHz CPU and 40 MHz flash frequencies are fine
  * - 2 MB APP and 2 MB FATFS partition scheme is requiered

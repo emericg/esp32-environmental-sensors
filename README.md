@@ -14,15 +14,15 @@ Custom firmware for HiGrow ESP32 boards.
 
 [Check it out](HiGrow)
 
-### GeigerCounter
+### Geiger Counter
 
-Firmware for ESP32 boards with "CAJOE" Geiger Counter modules.
+ESP32 board with a "CAJOE" Geiger Counter module.
 
 [Check it out](GeigerCounter)
 
-### AirMonitor
+### Air Quality Monitor
 
-Air quality monitoring sensor.
+ESP32 board with a handful of sensors for air quality monitoring.
 
 [Check it out](AirMonitor)
 
