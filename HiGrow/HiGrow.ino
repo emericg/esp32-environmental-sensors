@@ -65,10 +65,8 @@
 /* ************************************************************************** */
 
 BH1750 lightMeter(0x23);
-
-#define DHT_TYPE DHT11   // can be DHT11 DHT21 DHT22
-DHT dht(PIN_DHT, DHT_TYPE);
-//DHT12 dht(PIN_DHT, true);
+DHT dht(PIN_DHT, DHT11);        // For DHT11 / DHT21 / DHT22
+//DHT12 dht(PIN_DHT, true);     // For DHT12
 
 Button2 bootButton(PIN_BUTTON_BOOT);
 Button2 wakeButton(PIN_BUTTON_WAKE);
@@ -130,10 +128,12 @@ void ble_setup()
     bleServer = BLEDevice::createServer();
     bleServer->setCallbacks(new ServerCallbacks());
 
+    // Battery service
     bleBatteryService = bleServer->createService(UUID_BLE_BATTERY_SERVICE);
     bleBatteryChar = bleBatteryService->createCharacteristic(UUID_BLE_BATTERY_CHAR, BLECharacteristic::PROPERTY_READ);
     bleBatteryChar->setValue("100");
 
+    // Data service
     bleDataService = bleServer->createService(UUID_BLE_SERVICE);
     bleInfosDevice = bleDataService->createCharacteristic(UUID_BLE_INFOS_DEVICE, BLECharacteristic::PROPERTY_READ);
     bleInfosDevice->setValue(WIFI_MDNS_NAME);
@@ -151,6 +151,7 @@ void ble_setup()
 
     bleDataService->start();
 
+    // Start BLE
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(UUID_BLE_SERVICE);
     pAdvertising->setScanResponse(true);
@@ -216,11 +217,11 @@ void wifi_setup()
     //    multi.addAP(WIFI_SSID, WIFI_PASSWD);
     //    Serial.println("Connect to default SSID");
     //
-    //    int timeout = 8;
+    //    int timeout = 16;
     //    while (multi.run() != WL_CONNECTED && timeout > 0) {
     //        Serial.print('.');
     //        timeout--;
-    //        delay(500);
+    //        delay(250);
     //    }
     //} else {
     //    WiFi.begin();
@@ -252,7 +253,7 @@ void wifi_monitor()
     {
         Serial.println("wifi reconnection...");
         wifi_disconnect();
-        delay(100);
+        delay(250);
         wifi_setup();
         //if (connectioWasAlive == true)
         //{
@@ -260,7 +261,7 @@ void wifi_monitor()
         //    Serial.print("Looking for WiFi ");
         //}
         //Serial.print(".");
-        //delay(500);
+        //delay(250);
     }
     //else if (connectioWasAlive == false)
     //{
@@ -278,7 +279,7 @@ void smartConfigStart(Button2 &b)
     WiFi.beginSmartConfig();
     while (!WiFi.smartConfigDone()) {
         Serial.print(".");
-        delay(200);
+        delay(250);
     }
     WiFi.stopSmartConfig();
     Serial.println("\nsmartConfigStop...");
@@ -453,7 +454,7 @@ void loop()
             //Serial.print("Heat index: "); Serial.println(hic12);
             //Serial.print("Dew point:  "); Serial.println(dpc12);
         } else {
-            Serial.println("[DHT] read error");
+            //Serial.println("[DHT] read error");
         }
 
         ////////
@@ -509,8 +510,8 @@ void loop()
         cbatt.update(batV);
         ctemp.update(temp);
         chumidity.update((int)humidity);
-        cmoisture.update((int)soilmoisture);
-        cfertility.update((int)soilfertility);
+        cmoisture.update(soilmoisture);
+        cfertility.update(soilfertility);
 
         dashboard.sendUpdates();
     }

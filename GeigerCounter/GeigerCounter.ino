@@ -45,7 +45,6 @@
 #define PIN_GEIGER          13
 #define PIN_I2C_SDA         25
 #define PIN_I2C_SCL         26
-#define PIN_BAT_ADC         -1
 
 /* ************************************************************************** */
 
@@ -106,6 +105,7 @@ void ble_setup()
     bleServer = BLEDevice::createServer();
     bleServer->setCallbacks(new ServerCallbacks());
 
+    // Data service
     bleDataService = bleServer->createService(UUID_BLE_SERVICE);
     bleInfosDevice = bleDataService->createCharacteristic(UUID_BLE_INFOS_DEVICE, BLECharacteristic::PROPERTY_READ);
     bleInfosDevice->setValue(WIFI_MDNS_NAME);
@@ -124,6 +124,7 @@ void ble_setup()
 
     bleDataService->start();
 
+    // Start BLE
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(UUID_BLE_SERVICE);
     pAdvertising->setScanResponse(true);
@@ -179,26 +180,26 @@ void wifi_setup()
     WiFi.mode(WIFI_STA);
     multi.addAP(WIFI_SSID, WIFI_PASSWD);
     multi.run();
-/*
-    wifi_config_t current_conf;
-    esp_wifi_get_config(WIFI_IF_STA, &current_conf);
-    int ssidlen = strlen((char *)(current_conf.sta.ssid));
-    int passlen = strlen((char *)(current_conf.sta.password));
 
-    if (ssidlen == 0 || passlen == 0) {
-        multi.addAP(WIFI_SSID, WIFI_PASSWD);
-        Serial.println("Connect to default SSID");
+    //wifi_config_t current_conf;
+    //esp_wifi_get_config(WIFI_IF_STA, &current_conf);
+    //int ssidlen = strlen((char *)(current_conf.sta.ssid));
+    //int passlen = strlen((char *)(current_conf.sta.password));
+    //
+    //if (ssidlen == 0 || passlen == 0) {
+    //    multi.addAP(WIFI_SSID, WIFI_PASSWD);
+    //    Serial.println("Connect to default SSID");
+    //
+    //    int timeout = 16;
+    //    while (multi.run() != WL_CONNECTED && timeout > 0) {
+    //        Serial.print('.');
+    //        timeout--;
+    //        delay(250);
+    //    }
+    //} else {
+    //    WiFi.begin();
+    //}
 
-        int timeout = 8;
-        while (multi.run() != WL_CONNECTED && timeout > 0) {
-            Serial.print('.');
-            timeout--;
-            delay(500);
-        }
-    } else {
-        WiFi.begin();
-    }
-*/
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
         Serial.printf("WiFi connection failed!\n");
     }
@@ -225,7 +226,7 @@ void wifi_monitor()
     {
         Serial.println("wifi reconnection...");
         wifi_disconnect();
-        delay(100);
+        delay(250);
         wifi_setup();
         //if (connectioWasAlive == true)
         //{
@@ -233,7 +234,7 @@ void wifi_monitor()
         //    Serial.print("Looking for WiFi ");
         //}
         //Serial.print(".");
-        //delay(500);
+        //delay(250);
     }
     //else if (connectioWasAlive == false)
     //{
