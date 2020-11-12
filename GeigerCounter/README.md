@@ -18,7 +18,7 @@ Sensors:
 
 Works with:
 * ESP Dash (v3) web interface
-* Bluetooth Low Energy API ([documentation](doc/geigercounter-api.md))
+* Bluetooth Low Energy API ([documentation](doc/geigercounter-ble-api.md))
 
 ### Dependencies
 

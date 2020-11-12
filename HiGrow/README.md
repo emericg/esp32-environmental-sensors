@@ -1,8 +1,9 @@
 # ![EnvironmentalSensor](https://i.imgur.com/e4Gf8NV.png)
 
-Custom firmware for **HiGrow ESP32 boards**. Tested with a Lilygo T-HiGrow v1.1
+Custom firmware for **HiGrow ESP32 boards**.
 
-HiGrow is a plant monitoring sensor platform using ESP32 chips. They are available on a couple of Chinese brands like LilyGo or Wemos
+HiGrow is a plant monitoring sensor platform using ESP32 chips.
+Original creator is Lucas Fabbri on [hackaday](https://hackaday.io/project/25253-higrow-plants-monitoring-sensor) and [github](https://github.com/lucafabbri/HiGrow-Arduino-Esp). Boards are still available on a couple of Chinese brands like LilyGO or Wemos
 
 Note that I would not recommend an HiGrow board for any serious plant monitoring, but it's OK for tinkering with an ESP32 board with onboard sensors.
 However if you already have one, this firmware might be useful!
@@ -20,7 +21,7 @@ Sensors:
 
 Works with:
 * ESP Dash (v3) web interface
-* Bluetooth Low Energy API ([documentation](doc/higrow-api.md))
+* Bluetooth Low Energy API ([documentation](doc/higrow-ble-api.md))
 
 ### Dependencies
 

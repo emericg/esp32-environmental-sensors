@@ -1,6 +1,6 @@
 /*!
  * Custom firmware for HiGrow ESP32 boards.
- * Tested with a Lilygo T-HiGrow v1.1
+ * Tested with a LilyGO T-HiGrow v1.1
  *
  * Other variants may need adjustments in order to work. Free to contact me
  * if you found such adjustment so we can set them this up properly in here!
