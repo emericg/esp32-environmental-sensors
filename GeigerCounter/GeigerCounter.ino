@@ -175,7 +175,7 @@ void wifi_setup()
     strcat(wifi_ap_name, " Access Point");
     WiFi.softAP(wifi_ap_name);
 #else
-    Serial.println("WIFI Connecting to local access point...");
+    Serial.println("WiFi Connecting to local access point...");
 
     WiFi.mode(WIFI_STA);
     multi.addAP(WIFI_SSID, WIFI_PASSWD);
@@ -201,7 +201,7 @@ void wifi_setup()
     //}
 
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        Serial.printf("WiFi connection failed!\n");
+        Serial.println("WiFi Connection failed!");
     }
     if (WiFi.status() == WL_CONNECTED) {
         Serial.print("- MAC Address: ");
@@ -224,9 +224,9 @@ void wifi_monitor()
 {
     if (multi.run() != WL_CONNECTED)
     {
-        Serial.println("wifi reconnection...");
+        Serial.println("WiFi Reconnection...");
         wifi_disconnect();
-        delay(250);
+        delay(500);
         wifi_setup();
         //if (connectioWasAlive == true)
         //{
