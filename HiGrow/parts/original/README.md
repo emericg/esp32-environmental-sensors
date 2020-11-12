@@ -1,9 +1,9 @@
 
-# Summary
+### Summary
 
 Case for the origial HiGrow 1.0 plant soil humidity sensor (with 18650 battery).
 
-# Attribution
+### Attribution
 
 http://www.thingiverse.com/thing:3491667
 

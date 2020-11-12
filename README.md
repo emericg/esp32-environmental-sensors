@@ -10,21 +10,19 @@ They use standard libraries and are easy to customize.
 
 ### HiGrow
 
-Custom firmware for HiGrow ESP32 boards.
+Custom firmware for HiGrow ESP32 boards. [Check it out!](HiGrow)
 
-[Check it out](HiGrow)
+![HiGrow UIs](https://i.imgur.com/gfpOMOl.png)
 
 ### Geiger Counter
 
-ESP32 board with a "CAJOE" Geiger Counter module.
+ESP32 board with a "CAJOE" Geiger Counter module. [Check it out!](GeigerCounter)
 
-[Check it out](GeigerCounter)
+![GeigerCounter UIs](https://i.imgur.com/8hAUht4.png)
 
 ### Air Quality Monitor
 
-ESP32 board with a handful of sensors for air quality monitoring.
-
-[Check it out](AirMonitor)
+ESP32 board with a handful of sensors for air quality monitoring. [Check it out!](AirMonitor)
 
 
 ## Get involved!

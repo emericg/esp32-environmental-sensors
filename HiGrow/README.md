@@ -8,6 +8,7 @@ Original creator is Lucas Fabbri on [hackaday](https://hackaday.io/project/25253
 Note that I would not recommend an HiGrow board for any serious plant monitoring, but it's OK for tinkering with an ESP32 board with onboard sensors.
 However if you already have one, this firmware might be useful!
 
+![HiGrow UIs](https://i.imgur.com/gfpOMOl.png)
 
 ### Capabilities
 

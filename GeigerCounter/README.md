@@ -7,6 +7,8 @@ The CAJOE module has a [Geiger Müller tube](https://en.wikipedia.org/wiki/Geige
 This board is made for long term ambient radiation monitoring.  
 You might not be planning on going to Chernobyl, but Chernobyl might just come to you...
 
+![GeigerCounter UIs](https://i.imgur.com/8hAUht4.png)
+
 ### Capabilities
 
 Sensors:
