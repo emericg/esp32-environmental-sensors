@@ -50,15 +50,30 @@
 #define FIRMWARE_VERSION "0.3"
 
 /* ************************************************************************** */
-
+/*
+// Pinout for the original board
 #define PIN_BUTTON_BOOT      0
 #define PIN_BUTTON_WAKE     35
-#define PIN_LED             -1
+#define PIN_POWER_CTRL      -1
+#define PIN_LED             16 // blue LED
+#define PIN_DHT             22
+#define PIN_I2C_SDA         -1
+#define PIN_I2C_SCL         -1
+#define PIN_MOISTURE        32
+#define PIN_LIGHT_ADC       33
+#define PIN_BAT_ADC         34
+#define PIN_FERTILITY       -1
+*/
+// Pinout for the LilyGO variant
+#define PIN_BUTTON_BOOT      0
+#define PIN_BUTTON_WAKE     35
 #define PIN_POWER_CTRL       4
+#define PIN_LED             -1
 #define PIN_DHT             16
 #define PIN_I2C_SDA         25
 #define PIN_I2C_SCL         26
 #define PIN_MOISTURE        32
+#define PIN_LIGHT_ADC       -1
 #define PIN_BAT_ADC         33
 #define PIN_FERTILITY       34
 
@@ -104,6 +119,8 @@ BLECharacteristic *bleInfosBattery = nullptr;
 BLECharacteristic *bleDataHiGrow = nullptr;
 
 bool bleClientConnected = false;
+char bleBattery[1] = {100};
+char bleData[16] = {0};
 
 class ServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer *pServer) {
@@ -131,7 +148,8 @@ void ble_setup()
     // Battery service
     bleBatteryService = bleServer->createService(UUID_BLE_BATTERY_SERVICE);
     bleBatteryChar = bleBatteryService->createCharacteristic(UUID_BLE_BATTERY_CHAR, BLECharacteristic::PROPERTY_READ);
-    bleBatteryChar->setValue("100");
+    bleBatteryChar->setValue((uint8_t *)bleBattery, 1);
+    bleBatteryService->start();
 
     // Data service
     bleDataService = bleServer->createService(UUID_BLE_SERVICE);
@@ -140,7 +158,7 @@ void ble_setup()
     bleInfosFirmware = bleDataService->createCharacteristic(UUID_BLE_INFOS_FIRMWARE, BLECharacteristic::PROPERTY_READ);
     bleInfosFirmware->setValue(FIRMWARE_VERSION);
     bleInfosBattery = bleDataService->createCharacteristic(UUID_BLE_INFOS_BATTERY, BLECharacteristic::PROPERTY_READ);
-    bleInfosBattery->setValue("100");
+    bleInfosBattery->setValue((uint8_t *)bleBattery, 1);
 
     //bleDataHiGrow->setCallbacks(new CharacteristicCallbacks())
     bleDataHiGrow = bleDataService->createCharacteristic(UUID_BLE_DATA_HIGROW,
@@ -300,7 +318,7 @@ void sleepHandler(Button2 &b)
 
 ESPDash dashboard(&server);
 
-Card ctemp(&dashboard, TEMPERATURE_CARD, "Temperature");
+Card ctemp(&dashboard, TEMPERATURE_CARD, "Temperature", "°C");
 Card clux(&dashboard, GENERIC_CARD, "Luminosity", "lux");
 Card cbatt(&dashboard, GENERIC_CARD, "Batterie voltage", "v");
 Card chumidity(&dashboard, HUMIDITY_CARD, "Humidity", "%");
@@ -347,7 +365,7 @@ void setup()
     delay(1000);
 
     Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
-    if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
+    if (lightMeter.begin(BH1750::CONTINUOUS_LOW_RES_MODE)) {
         Serial.println(F("BH1750 Advanced begin"));
     } else {
         Serial.println(F("Error initialising BH1750"));
@@ -356,12 +374,20 @@ void setup()
 
 /* ************************************************************************** */
 
-float readLight()
+int readLight_i2c()
 {
     float lux = lightMeter.readLightLevel();
     if (lux < 0.f) lux = 0.f;
     if (lux > 1000000.f) lux = 0.f;
-    return lux;
+    return (int)lux;
+}
+
+int readLight_adc()
+{
+    int light = map(analogRead(PIN_LIGHT_ADC), 0, 4095, 0, 1023);
+    if (light < 0) light = 0;
+    if (light > 1023) light = 1023;
+    return light;
 }
 
 int readMoisture()
@@ -418,7 +444,6 @@ int readBatteryPercent()
 uint64_t timestamp = 0;
 float temp = 1.f;
 float humidity = 1.f;
-char bledata[16] = {0};
 
 void loop()
 {
@@ -437,9 +462,9 @@ void loop()
         ////////
 
         float batV = readBatteryVolt();
-        int batP = readBatteryPercent();
+        bleBattery[0] = (char)readBatteryPercent();
 
-        float lux = readLight();
+        int lux = readLight_i2c();
         int soilmoisture = readMoisture();
         int soilfertility = readFertility();
 
@@ -475,30 +500,30 @@ void loop()
         if (bleClientConnected) {
             //Serial.println("bleClientConnected");
 
-            bleBatteryChar->setValue(batP);
-            bleInfosBattery->setValue(batP);
+            bleBatteryChar->setValue((uint8_t *)bleBattery, 1);
+            bleInfosBattery->setValue((uint8_t *)bleBattery, 1);
 
             uint16_t t = (uint16_t)temp*10;
             uint8_t h = (uint8_t)humidity;
             uint32_t l = (uint32_t)lux;
             uint16_t f = (uint16_t)soilfertility;
-            bledata[0] = (uint8_t)( t        & 0x00FF);
-            bledata[1] = (uint8_t)((t >> 8)  & 0x00FF);
-            bledata[2] = h;
-            bledata[3] = soilmoisture;
-            bledata[4] = (uint8_t)( f        & 0x00FF);
-            bledata[5] = (uint8_t)((f >> 8)  & 0x00FF);
-            bledata[6] = (uint8_t)( l        & 0x000000FF);
-            bledata[7] = (uint8_t)((l >>  8) & 0x000000FF);
-            bledata[8] = (uint8_t)((l >> 16) & 0x000000FF);
-            bledata[15] = '\0';
+            bleData[0] = (uint8_t)( t        & 0x00FF);
+            bleData[1] = (uint8_t)((t >> 8)  & 0x00FF);
+            bleData[2] = h;
+            bleData[3] = soilmoisture;
+            bleData[4] = (uint8_t)( f        & 0x00FF);
+            bleData[5] = (uint8_t)((f >> 8)  & 0x00FF);
+            bleData[6] = (uint8_t)( l        & 0x000000FF);
+            bleData[7] = (uint8_t)((l >>  8) & 0x000000FF);
+            bleData[8] = (uint8_t)((l >> 16) & 0x000000FF);
+            bleData[15] = '\0';
 
-            bleDataHiGrow->setValue((uint8_t*)bledata, 16);
+            bleDataHiGrow->setValue((uint8_t *)bleData, 16);
             bleDataHiGrow->notify();
 /*
             // Recap
             Serial.println("RECAP BLE");
-            for (int i = 0; i < 16; i++) Serial.print(bledata[i], HEX);
+            for (int i = 0; i < 16; i++) Serial.print(bleData[i], HEX);
             Serial.println();
 */
         }
