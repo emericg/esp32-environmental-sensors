@@ -1,5 +1,5 @@
 
-<img src="lungs-solid.svg" width="320px" alt="GeigerCounter" align="right" />
+<img src="lungs-solid.svg" width="320px" alt="AirMonitor" align="right" />
 
 ## About the ESP32 Air Quality Monitor
 
