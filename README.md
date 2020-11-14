@@ -2,8 +2,8 @@
 
 Wifi and Bluetooth **environmental sensors** built with **ESP32** dev boards.
 
-These firmwares are providing both a **wifi** web inteface and a documented **BLE** API to use with [WatchFlower](https://github.com/emericg/WatchFlower).
-They use standard libraries and are easy to customize.
+These firmwares are providing both a **WiFi** web inteface and a documented **BLE** API to use with [WatchFlower](https://github.com/emericg/WatchFlower).
+They use standard libraries and are easy to customize to your own needs.
 
 
 ## Projects

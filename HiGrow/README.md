@@ -36,10 +36,20 @@ Works with:
 - DHT library (for DTH11, DTH21, DTH22)
 - DHT12 library (for DHT12)
 
-### Settings
+
+## Instructions
+
+### ESP32 settings
 
 * 80 MHz CPU and 40 MHz flash frequencies are fine
 * 2 MB APP and 2 MB FATFS partition scheme is requiered
+
+### Firmware
+
+Just build and upload the HiGrow.ino sketch to your ESP32.
+
+Change `WIFI_SSID` and `WIFI_PASSWD` if you want the ESP32 to connect to your local WiFi network. Otherwise it will create its own access point.  
+You can then access the embeded web server using the correct IP address, or (if your computer/device is compatible with mdns) using `http://HiGrow.local`.
 
 
 ## Get involved!

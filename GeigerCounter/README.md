@@ -31,10 +31,30 @@ Works with:
   - Arduino JSON
 - Button2 library
 
-### Settings
+
+## Instructions
+
+### Hardware
+
+Just connect the CAJOE board pins to your ESP32.
+
+| CAJOE | > | ESP32 |
+| ----- | - | ----- |
+| 5V    | > | 5V    |
+| GND   | > | GND   |
+| VIN   | > | D13   |
+
+### ESP32 settings
 
 * 80 MHz CPU and 40 MHz flash frequencies are fine
 * 2 MB APP and 2 MB FATFS partition scheme is requiered
+
+### Firmware
+
+Just build and upload the GeigerCounter.ino sketch to your ESP32.
+
+Change `WIFI_SSID` and `WIFI_PASSWD` if you want the ESP32 to connect to your local WiFi network. Otherwise it will create its own access point.  
+You can then access the embeded web server using the correct IP address, or (if your computer/device is compatible with mdns) using `http://GeigerCounter.local`.
 
 
 ## Get involved!
