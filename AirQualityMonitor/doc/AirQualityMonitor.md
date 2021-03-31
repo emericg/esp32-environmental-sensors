@@ -109,7 +109,7 @@ None
 ## Reference
 
 [1] https://emeric.io/EnvironmentalSensors/  
-[2] https://github.com/emericg/esp32-environmental-sensors/tree/master/AirMonitor  
+[2] https://github.com/emericg/esp32-environmental-sensors/tree/master/AirQualityMonitor  
 
 ## License
 

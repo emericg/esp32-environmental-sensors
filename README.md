@@ -22,7 +22,11 @@ ESP32 board with a "CAJOE" Geiger Counter module. [Check it out!](GeigerCounter)
 
 ### Air Quality Monitor
 
-ESP32 board with a handful of sensors for air quality monitoring. [Check it out!](AirMonitor)
+ESP32 board with a handful of sensors for air quality monitoring. [Check it out!](AirQualityMonitor)
+
+### Weather Station
+
+ESP32 board with a handful of sensors for weather monitoring. [Check it out!](WeatherStation)
 
 
 ## Get involved!
