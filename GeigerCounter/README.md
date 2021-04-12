@@ -19,7 +19,7 @@ Sensors:
 * Radiation status (OK > careful > you're gonna die)
 
 Works with:
-* ESP Dash (v3) web interface
+* ESP Dash (v3) web interface ([customizations](espdash/README.md))
 * Bluetooth Low Energy API ([documentation](doc/geigercounter-ble-api.md))
 
 ### Dependencies
@@ -54,7 +54,7 @@ Just connect the CAJOE board pins to your ESP32.
 Just build and upload the GeigerCounter.ino sketch to your ESP32.
 
 Change `WIFI_SSID` and `WIFI_PASSWD` if you want the ESP32 to connect to your local WiFi network. Otherwise it will create its own access point.  
-You can then access the embeded web server using the correct IP address, or (if your computer/device is compatible with mdns) using `http://GeigerCounter.local`.
+You can then access the embeded web server using the actual IP address, or with the following URL: `http://GeigerCounter.local` (but ONLY if your computer/device is compatible with mDNS).
 
 
 ## Get involved!
@@ -66,3 +66,10 @@ You can browse the code on the GitHub page, submit patches and pull requests! Yo
 ### Users
 
 You can help us find and report bugs, suggest new features, help with translation, documentation and more! Visit the Issues section of the GitHub page to start!
+
+
+## License
+
+MIT License
+
+> Copyright (c) 2020 Emeric Grange <emeric.grange@gmail.com>
