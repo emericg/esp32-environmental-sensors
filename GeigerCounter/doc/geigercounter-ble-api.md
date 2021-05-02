@@ -3,7 +3,7 @@
 
 ## About the ESP32 Geiger Counter
 
-* This [Geiger Counter]() is meant to keep you alive by monitoring ambient radiation levels
+* This [Geiger Counter](https://emeric.io/EnvironmentalSensors/#geigercounter) is meant to keep you alive by monitoring ambient radiation levels
 * It has a Geiger Müller tube, used for the detection of ionizing radiation
 * Uses Bluetooth Low Energy (BLE) and has a limited range
 
@@ -31,24 +31,29 @@ The name advertised by the device is `GeigerCounter`
 
 | Characteristic UUID                  | Handle | Access      | Description |
 | ------------------------------------ | ------ | ----------- | ----------- |
-| 00002a00-0000-1000-8000-00805f9b34fb | 0x16   | read        | device name |
+| 00002a00-0000-1000-8000-00805f9b34fb | -      | read        | device name |
+
+##### Device Information (UUID 0000180a-0000-1000-8000-00805f9b34fb)
+
+| Characteristic UUID                  | Handle | Access      | Description                 |
+| ------------------------------------ | ------ | ----------- | --------------------------- |
+| 00002a24-0000-1000-8000-00805f9b34fb | -      | read        | model number string         |
+| 00002a26-0000-1000-8000-00805f9b34fb | -      | read        | firmware revision string    |
 
 ##### Battery service (UUID 0000180f-0000-1000-8000-00805f9b34fb)
 
-| Characteristic UUID                  | Handle | Access      | Description               |
-| ------------------------------------ | ------ | ----------- | ------------------------- |
-| 00002a19-0000-1000-8000-00805f9b34fb | 0x44   | read        | battery level             |
+| Characteristic UUID                  | Handle | Access      | Description                 |
+| ------------------------------------ | ------ | ----------- | --------------------------- |
+| 00002a19-0000-1000-8000-00805f9b34fb | -      | read        | battery level               |
 
 ##### Data service (UUID eeee9a32-a000-4cbd-b00b-6b519bf2780f)
 
-| Characteristic UUID                  | Handle | Access      | Description                            |
-| ------------------------------------ | ------ | ----------- | -------------------------------------- |
-| eeee9a32-a001-4cbd-b00b-6b519bf2780f | 0x2a   | read        | get device name                        |
-| eeee9a32-a002-4cbd-b00b-6b519bf2780f | 0x2c   | read        | get firmware version                   |
-| eeee9a32-a003-4cbd-b00b-6b519bf2780f | 0x2e   | read        | get battery level                      |
-| eeee9a32-a0a0-4cbd-b00b-6b519bf2780f | 0x30   | read/notify | get HiGrow realtime data               |
-| eeee9a32-a0b0-4cbd-b00b-6b519bf2780f | 0x0?   | read/notify | get Air Monitor realtime data          |
-| eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | 0x0?   | read/notify | get Geiger Counter realtime data       |
+| Characteristic UUID                  | Handle | Access      | Description                         |
+| ------------------------------------ | ------ | ----------- | ----------------------------------- |
+| eeee9a32-a0a0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Air Monitor realtime data       |
+| eeee9a32-a0b0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Weather Station realtime data   |
+| eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | -      | read/notify | get HiGrow realtime data            |
+| eeee9a32-a0d0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Geiger Counter realtime data    |
 
 <img src="endianness.png" width="400px" alt="Endianness" align="right" />
 
@@ -58,36 +63,6 @@ The data is encoded on bytes in little-endian.
 This means that the data is represented with the least significant byte first.
 
 To understand multi-byte integer representation, you can read the [endianness](https://en.wikipedia.org/wiki/Endianness) Wikipedia page.
-
-### Name
-
-A read request to the `0x16` handle will return n bytes of data, for example `0x476569676572436f756e746572` corresponding to the device name.
-
-| Position | 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 |
-| -------- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
-| Value    | 47 | 65 | 69 | 67 | 65 | 72 | 43 | 6f | 75 | 6e | 74 | 65 | 72 |
-
-| Bytes | Type       | Value         | Description |
-| ----- | ---------- | ------------- | ----------- |
-| all   | ASCII text | GeigerCounter | device name |
-
-### Firmware
-
-A read request to the `0x2c` handle will return 3 bytes of data, for example `0x302e33`.
-
-| Position | 00 | 01 | 02 |
-| -------- | -- | -- | -- |
-| Value    | 30 | 2e | 31 |
-
-| Bytes | Type       | Value | Description        |
-| ----- | ---------- | ----- | ------------------ |
-| all   | ASCII text | 0.3   | firmware version   |
-
-##### Battery service (UUID 0000180f-0000-1000-8000-00805f9b34fb)
-
-| Characteristic UUID                  | Handle | Access      | Description               |
-| ------------------------------------ | ------ | ----------- | ------------------------- |
-| 00002a19-0000-1000-8000-00805f9b34fb | 0x44   | read        | battery level             |
 
 ### Real-time data
 
@@ -104,11 +79,11 @@ You can subscribe to this handle and and receive notifications for new values (o
 
 ### Advertisement data
 
-None
+None yet
 
 ## Reference
 
-[1] https://emeric.io/EnvironmentalSensors/  
+[1] https://emeric.io/EnvironmentalSensors/#geigercounter  
 [2] https://github.com/emericg/esp32-environmental-sensors/tree/master/GeigerCounter  
 
 ## License

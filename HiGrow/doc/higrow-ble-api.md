@@ -3,7 +3,7 @@
 
 ## About HiGrow
 
-* [HiGrow sensors]() are meant to keep your plants alive by monitoring their environment
+* [HiGrow sensors](https://emeric.io/EnvironmentalSensors/#higrow) are meant to keep your plants alive by monitoring their environment
 * Has sensors to relay temperature, humidity, light intensity, soil moisture and soil fertility (via electrical conductivity)
 * Uses Bluetooth Low Energy (BLE) and has a limited range
 * A lipo battery can be used (charging via USB)
@@ -36,24 +36,29 @@ The name advertised by the device is `HiGrow`
 
 | Characteristic UUID                  | Handle | Access      | Description |
 | ------------------------------------ | ------ | ----------- | ----------- |
-| 00002a00-0000-1000-8000-00805f9b34fb | 0x16   | read        | device name |
+| 00002a00-0000-1000-8000-00805f9b34fb | -      | read        | device name |
+
+##### Device Information (UUID 0000180a-0000-1000-8000-00805f9b34fb)
+
+| Characteristic UUID                  | Handle | Access      | Description                 |
+| ------------------------------------ | ------ | ----------- | --------------------------- |
+| 00002a24-0000-1000-8000-00805f9b34fb | -      | read        | model number string         |
+| 00002a26-0000-1000-8000-00805f9b34fb | -      | read        | firmware revision string    |
 
 ##### Battery service (UUID 0000180f-0000-1000-8000-00805f9b34fb)
 
-| Characteristic UUID                  | Handle | Access      | Description               |
-| ------------------------------------ | ------ | ----------- | ------------------------- |
-| 00002a19-0000-1000-8000-00805f9b34fb | 0x44   | read        | battery level             |
+| Characteristic UUID                  | Handle | Access      | Description                 |
+| ------------------------------------ | ------ | ----------- | --------------------------- |
+| 00002a19-0000-1000-8000-00805f9b34fb | -      | read        | battery level               |
 
 ##### Data service (UUID eeee9a32-a000-4cbd-b00b-6b519bf2780f)
 
-| Characteristic UUID                  | Handle | Access      | Description                            |
-| ------------------------------------ | ------ | ----------- | -------------------------------------- |
-| eeee9a32-a001-4cbd-b00b-6b519bf2780f | 0x2a   | read        | get device name                        |
-| eeee9a32-a002-4cbd-b00b-6b519bf2780f | 0x2c   | read        | get firmware version                   |
-| eeee9a32-a003-4cbd-b00b-6b519bf2780f | 0x2e   | read        | get battery level                      |
-| eeee9a32-a0a0-4cbd-b00b-6b519bf2780f | 0x30   | read/notify | get HiGrow realtime data               |
-| eeee9a32-a0b0-4cbd-b00b-6b519bf2780f | 0x0?   | read/notify | get Air Monitor realtime data          |
-| eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | 0x0?   | read/notify | get Geiger Counter realtime data       |
+| Characteristic UUID                  | Handle | Access      | Description                         |
+| ------------------------------------ | ------ | ----------- | ----------------------------------- |
+| eeee9a32-a0a0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Air Monitor realtime data       |
+| eeee9a32-a0b0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Weather Station realtime data   |
+| eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | -      | read/notify | get HiGrow realtime data            |
+| eeee9a32-a0d0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Geiger Counter realtime data    |
 
 <img src="endianness.png" width="400px" alt="Endianness" align="right" />
 
@@ -66,7 +71,7 @@ To understand multi-byte integer representation, you can read the [endianness](h
 
 ### Name
 
-A read request to the `0x16` handle will return n bytes of data, for example `0x486947726f77` corresponding to the device name.
+A read request to the `model number` characteristic will return n bytes of data, for example `0x486947726f77` corresponding to the device name.
 
 | Position | 00 | 01 | 02 | 03 | 04 | 05 |
 | -------- | -- | -- | -- | -- | -- | -- |
@@ -78,7 +83,7 @@ A read request to the `0x16` handle will return n bytes of data, for example `0x
 
 ### Firmware
 
-A read request to the `0x2c` handle will return 3 bytes of data, for example `0x302e33`.
+A read request to the `firmware revision` characteristic will return 3 bytes of data, for example `0x302e33`.
 
 | Position | 00 | 01 | 02 |
 | -------- | -- | -- | -- |
@@ -90,7 +95,7 @@ A read request to the `0x2c` handle will return 3 bytes of data, for example `0x
 
 ### Battery
 
-A read request to the `0x2e` handle will return 4 bytes of data, for example `0x64000000`.
+A read request to the `battery level` characteristic will return 4 bytes of data, for example `0x64000000`.
 
 | Position | 00 | 01 | 02 | 03 |
 | -------- | -- | -- | -- | -- |
@@ -120,11 +125,11 @@ You can subscribe to this handle and and receive notifications for new values (o
 
 ### Advertisement data
 
-None
+None yet
 
 ## Reference
 
-[1] https://emeric.io/EnvironmentalSensors/  
+[1] https://emeric.io/EnvironmentalSensors/#higrow  
 [2] https://github.com/emericg/esp32-environmental-sensors/tree/master/HiGrow  
 
 ## License
