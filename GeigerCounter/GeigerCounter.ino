@@ -35,59 +35,66 @@
 
 #include <Button2.h>
 
-#define FIRMWARE_NAME    "GeigerCounter"
-#define FIRMWARE_VERSION "0.3"
-
 /* ************************************************************************** */
+
+#define FIRMWARE_NAME       "GeigerCounter"
+#define FIRMWARE_VERSION    "0.4"
 
 #define PIN_BUTTON_BOOT      0
 #define PIN_LED              2
 #define PIN_GEIGER          13
-#define PIN_I2C_SDA         25
-#define PIN_I2C_SCL         26
 
 /* ************************************************************************** */
 
 AsyncWebServer server(80);
 WiFiMulti multi;
 
-#define WIFI_AP_MODE      false
-#define WIFI_MDNS_NAME    "GeigerCounter"
-#define WIFI_SSID         ""
-#define WIFI_PASSWD       ""
+#define WIFI_AP_MODE        false
+#define WIFI_MDNS_NAME      "GeigerCounter"
+#define WIFI_SSID           ""
+#define WIFI_PASSWD         ""
 
 /* ************************************************************************** */
 
-#define UUID_BLE_BATTERY_SERVICE  "0000180f-0000-1000-8000-00805f9b34fb"
-#define UUID_BLE_BATTERY_CHAR     "00002a19-0000-1000-8000-00805f9b34fb"
+#define UUID_BLE_INFOS_SERVICE    "0000180a-0000-1000-8000-00805f9b34fb"
+#define UUID_BLE_INFOS_DEVICE     "00002a24-0000-1000-8000-00805f9b34fb"
+#define UUID_BLE_INFOS_FIRMWARE   "00002a26-0000-1000-8000-00805f9b34fb"
 
-#define UUID_BLE_SERVICE          "eeee9a32-a000-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_INFOS_DEVICE     "eeee9a32-a001-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_INFOS_FIRMWARE   "eeee9a32-a002-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_INFOS_BATTERY    "eeee9a32-a003-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_DATA_GEIGER      "eeee9a32-a0c0-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_DATA_RECAP       "eeee9a32-a0c1-4cbd-b00b-6b519bf2780f"
+#define UUID_BLE_BATTERY_SERVICE  "0000180f-0000-1000-8000-00805f9b34fb"
+#define UUID_BLE_BATTERY_LEVEL    "00002a19-0000-1000-8000-00805f9b34fb"
+
+#define UUID_BLE_DATA_SERVICE     "eeee9a32-a000-4cbd-b00b-6b519bf2780f"
+#define UUID_BLE_DATA_REALTIME    "eeee9a32-a0d0-4cbd-b00b-6b519bf2780f"
 
 /* ************************************************************************** */
 
 BLEServer *bleServer = nullptr;
-BLEService *bleBatteryService = nullptr;
-BLECharacteristic *bleBatteryChar = nullptr;
-BLEService *bleDataService = nullptr;
+
+BLEService *bleInfosService = nullptr;
 BLECharacteristic *bleInfosDevice = nullptr;
 BLECharacteristic *bleInfosFirmware = nullptr;
-BLECharacteristic *bleInfosBattery = nullptr;
-BLECharacteristic *bleDataGeiger_svm = nullptr;
+
+BLEService *bleBatteryService = nullptr;
+BLECharacteristic *bleBatteryLevel = nullptr;
+
+BLEService *bleDataService = nullptr;
 BLECharacteristic *bleDataGeiger_rt = nullptr;
 
 bool bleClientConnected = false;
+uint64_t bleTimestamp = 0;
+char bleData[16] = {0};
 
 class ServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer *pServer) {
+        //Serial.println("+ bleServer onConnect()");
+        bleTimestamp = millis();
         bleClientConnected = true;
     }
     void onDisconnect(BLEServer *pServer) {
+        //Serial.println("- bleServer onDisconnect()");
+        bleTimestamp = 0;
         bleClientConnected = false;
+        pServer->startAdvertising(); // restart advertising
     }
 };
 class CharacteristicCallbacks : public BLECharacteristicCallbacks {
@@ -105,28 +112,32 @@ void ble_setup()
     bleServer = BLEDevice::createServer();
     bleServer->setCallbacks(new ServerCallbacks());
 
-    // Data service
-    bleDataService = bleServer->createService(UUID_BLE_SERVICE);
-    bleInfosDevice = bleDataService->createCharacteristic(UUID_BLE_INFOS_DEVICE, BLECharacteristic::PROPERTY_READ);
+    // Info service
+    bleInfosService = bleServer->createService(UUID_BLE_INFOS_SERVICE);
+    bleInfosDevice = bleInfosService->createCharacteristic(UUID_BLE_INFOS_DEVICE, BLECharacteristic::PROPERTY_READ);
     bleInfosDevice->setValue(WIFI_MDNS_NAME);
-    bleInfosFirmware = bleDataService->createCharacteristic(UUID_BLE_INFOS_FIRMWARE, BLECharacteristic::PROPERTY_READ);
+    bleInfosFirmware = bleInfosService->createCharacteristic(UUID_BLE_INFOS_FIRMWARE, BLECharacteristic::PROPERTY_READ);
     bleInfosFirmware->setValue(FIRMWARE_VERSION);
+    bleInfosService->start();
+
+    // Battery service
+    // this device doesn't have a battery
+
+    // Data service
+    bleDataService = bleServer->createService(UUID_BLE_DATA_SERVICE);
 
     //bleDataGeiger_rt->setCallbacks(new CharacteristicCallbacks())
-    bleDataGeiger_rt = bleDataService->createCharacteristic(UUID_BLE_DATA_GEIGER,
+    bleDataGeiger_rt = bleDataService->createCharacteristic(UUID_BLE_DATA_REALTIME,
                                                             BLECharacteristic::PROPERTY_READ |
                                                             BLECharacteristic::PROPERTY_NOTIFY);
     bleDataGeiger_rt->setValue("");
     bleDataGeiger_rt->addDescriptor(new BLE2902());
 
-    bleDataGeiger_svm = bleDataService->createCharacteristic(UUID_BLE_DATA_RECAP, BLECharacteristic::PROPERTY_READ);
-    bleDataGeiger_svm->setValue("");
-
     bleDataService->start();
 
     // Start BLE
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(UUID_BLE_SERVICE);
+    pAdvertising->addServiceUUID(UUID_BLE_DATA_SERVICE);
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06); // functions that help with iPhone connections issue
     pAdvertising->setMaxPreferred(0x12);
@@ -144,7 +155,7 @@ const int daylightOffset_sec = daylightOffset * 3600;
 
 bool ntpTimeSet = false;
 
-void setup_network_time()
+void ntp_setup()
 {
     // Get datetime from NTP servers
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -209,7 +220,7 @@ void wifi_setup()
         Serial.print("- IP Address: ");
         Serial.println(WiFi.localIP());
 
-        setup_network_time();
+        ntp_setup();
     }
 #endif // WIFI_AP_MODE
 }
@@ -272,9 +283,9 @@ bool httpServerBegin_v3()
 
 /* ************************************************************************** */
 
-volatile int counts = 0;          // Tube events
+volatile int counts = 0;            // Tube events
 unsigned int previousCounts = 0;
-unsigned int cpm = 0;                      // count per minute
+unsigned int cpm = 0;               // count per minute
 
 std::vector <int> vvv;
 int vvv_line[60] = {0};
@@ -307,7 +318,6 @@ void setup()
 /* ************************************************************************** */
 
 uint64_t timestamp = 0;
-char bledata[16] = {0};
 
 void loop()
 {
@@ -347,24 +357,27 @@ void loop()
 
             dtostrf(msv_m, 3, 3, temp);
             //Serial.print("- "); Serial.println(temp);
-            bleDataGeiger_svm->setValue(temp);
-
-            dtostrf(msv_m, 3, 3, temp);
-            //Serial.print("- "); Serial.println(temp);
             bleDataGeiger_rt->setValue(temp);
             bleDataGeiger_rt->notify();
+
+            if (millis() - bleTimestamp > 60000)
+            {
+                Serial.println("- bleClientConnected TIMEOUT");
+                bleServer->disconnect(bleServer->getConnId());
+            }
         }
 
         ////////
 
-        // webserver (v3)
+        // webserver (ESP DASH v3)
         geigercount.update(counts);
         geigergauge.update(instantCount);
         sievert_m.update(msv_m);
         sievert_s.update(msv_s);
+
         if (msv_m > 10.f) radioactivity.update("danger", "danger");
         else if (msv_m > 1.f) radioactivity.update("warning", "warning");
-        else radioactivity.update("success", "success");
+        else radioactivity.update("good", "success");
 
         dashboard.sendUpdates();
     }

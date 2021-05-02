@@ -1,9 +1,5 @@
 /*!
- * Custom firmware for HiGrow ESP32 boards.
- * Tested with a LilyGO T-HiGrow v1.1
- *
- * Other variants may need adjustments in order to work. Free to contact me
- * if you found such adjustment so we can set them this up properly in here!
+ * Firmware for ESP32 boards for Air Quality Monitoring
  *
  * Settings:
  * - 80 MHz CPU and 40 MHz flash frequencies are fine
@@ -15,9 +11,11 @@
  *   - AsyncTCP
  *   - Arduino JSON
  * - Button2 library
- * - BH1750 library
- * - DHT library (for DTH11, DTH21, DTH22)
- * - DHT12 library (for DHT12)
+ *
+ * CJMCU-8128 sensor
+ * - SparkFun_CCS811
+ * - SparkFun_BME280
+ * - ClosedCube_HDC1080
  */
 
 #include <algorithm>
@@ -42,49 +40,21 @@
 
 #include <Button2.h>
 #include <Wire.h>
-#include <BH1750.h>
-#include <DHT12.h>
-#include <DHT.h>
+#include <SparkFunCCS811.h>
+#include <SparkFunBME280.h>
+#include <ClosedCube_HDC1080.h>
 
-#define FIRMWARE_NAME       "HiGrow"
+CCS811 sensor_CCS811(0x5A);
+ClosedCube_HDC1080 sensor_HDC1080;
+BME280 sensor_BME280;
+
+/* ************************************************************************** */
+
+#define FIRMWARE_NAME       "AirQualityMonitor"
 #define FIRMWARE_VERSION    "0.4"
 
-/* ************************************************************************** */
-/*
-// Pinout for the original board
 #define PIN_BUTTON_BOOT      0
-#define PIN_BUTTON_WAKE     35
-#define PIN_POWER_CTRL      -1
-#define PIN_LED             16 // blue LED
-#define PIN_DHT             22
-#define PIN_I2C_SDA         -1
-#define PIN_I2C_SCL         -1
-#define PIN_MOISTURE        32
-#define PIN_LIGHT_ADC       33
-#define PIN_BAT_ADC         34
-#define PIN_FERTILITY       -1
-*/
-// Pinout for the LilyGO variant
-#define PIN_BUTTON_BOOT      0
-#define PIN_BUTTON_WAKE     35
-#define PIN_POWER_CTRL       4
-#define PIN_LED             -1
-#define PIN_DHT             16
-#define PIN_I2C_SDA         25
-#define PIN_I2C_SCL         26
-#define PIN_MOISTURE        32
-#define PIN_LIGHT_ADC       -1
-#define PIN_BAT_ADC         33
-#define PIN_FERTILITY       34
-
-/* ************************************************************************** */
-
-BH1750 lightMeter(0x23);
-DHT dht(PIN_DHT, DHT11);        // For DHT11 / DHT21 / DHT22
-//DHT12 dht(PIN_DHT, true);     // For DHT12
-
-Button2 bootButton(PIN_BUTTON_BOOT);
-Button2 wakeButton(PIN_BUTTON_WAKE);
+#define PIN_LED              2
 
 /* ************************************************************************** */
 
@@ -92,7 +62,7 @@ AsyncWebServer server(80);
 WiFiMulti multi;
 
 #define WIFI_AP_MODE        false
-#define WIFI_MDNS_NAME      "HiGrow"
+#define WIFI_MDNS_NAME      "AirQualityMonitor"
 #define WIFI_SSID           ""
 #define WIFI_PASSWD         ""
 
@@ -106,7 +76,7 @@ WiFiMulti multi;
 #define UUID_BLE_BATTERY_LEVEL    "00002a19-0000-1000-8000-00805f9b34fb"
 
 #define UUID_BLE_DATA_SERVICE     "eeee9a32-a000-4cbd-b00b-6b519bf2780f"
-#define UUID_BLE_DATA_REALTIME    "eeee9a32-a0c0-4cbd-b00b-6b519bf2780f"
+#define UUID_BLE_DATA_REALTIME    "eeee9a32-a0a0-4cbd-b00b-6b519bf2780f"
 
 /* ************************************************************************** */
 
@@ -120,11 +90,15 @@ BLEService *bleBatteryService = nullptr;
 BLECharacteristic *bleBatteryLevel = nullptr;
 
 BLEService *bleDataService = nullptr;
-BLECharacteristic *bleDataHiGrow = nullptr;
+BLECharacteristic *bleDataAir_rt = nullptr;
+//BLECharacteristic *bleDataAir_VOC = nullptr;
+//BLECharacteristic *bleDataAir_eCO2 = nullptr;
+//BLECharacteristic *bleDataAir_temp = nullptr;
+//BLECharacteristic *bleDataAir_humi = nullptr;
+//BLECharacteristic *bleDataAir_pressure = nullptr;
 
 bool bleClientConnected = false;
 uint64_t bleTimestamp = 0;
-char bleBattery[1] = {100};
 char bleData[16] = {0};
 
 class ServerCallbacks : public BLEServerCallbacks {
@@ -164,20 +138,17 @@ void ble_setup()
     bleInfosService->start();
 
     // Battery service
-    bleBatteryService = bleServer->createService(UUID_BLE_BATTERY_SERVICE);
-    bleBatteryLevel = bleBatteryService->createCharacteristic(UUID_BLE_BATTERY_LEVEL, BLECharacteristic::PROPERTY_READ);
-    bleBatteryLevel->setValue((uint8_t *)bleBattery, 1);
-    bleBatteryService->start();
+    // this device doesn't have a battery
 
     // Data service
     bleDataService = bleServer->createService(UUID_BLE_DATA_SERVICE);
 
-    //bleDataHiGrow->setCallbacks(new CharacteristicCallbacks())
-    bleDataHiGrow = bleDataService->createCharacteristic(UUID_BLE_DATA_REALTIME,
+    //bleDataAir_rt->setCallbacks(new CharacteristicCallbacks())
+    bleDataAir_rt = bleDataService->createCharacteristic(UUID_BLE_DATA_REALTIME,
                                                          BLECharacteristic::PROPERTY_READ |
                                                          BLECharacteristic::PROPERTY_NOTIFY);
-    bleDataHiGrow->addDescriptor(new BLE2902());
-    bleDataHiGrow->setValue("");
+    bleDataAir_rt->setValue("");
+    bleDataAir_rt->addDescriptor(new BLE2902());
 
     bleDataService->start();
 
@@ -298,32 +269,7 @@ void wifi_monitor()
     //    connectioWasAlive = true;
     //    Serial.printf(" connected to %s\n", WiFi.SSID().c_str());
     //}
-}
 
-/* ************************************************************************** */
-
-void smartConfigStart(Button2 &b)
-{
-    Serial.println("smartConfigStart...");
-    WiFi.disconnect();
-    WiFi.beginSmartConfig();
-    while (!WiFi.smartConfigDone()) {
-        Serial.print(".");
-        delay(250);
-    }
-    WiFi.stopSmartConfig();
-    Serial.println("\nsmartConfigStop...");
-
-    Serial.print("> Connected to: "); Serial.println(WiFi.SSID());
-    Serial.print("> PSW: "); Serial.println(WiFi.psk());
-}
-
-void sleepHandler(Button2 &b)
-{
-    Serial.println("Entering deepsleep...");
-    esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
-    delay(1000);
-    esp_deep_sleep_start();
 }
 
 /* ************************************************************************** */
@@ -331,11 +277,11 @@ void sleepHandler(Button2 &b)
 ESPDash dashboard(&server);
 
 Card ctemp(&dashboard, TEMPERATURE_CARD, "Temperature", "°C");
-Card clux(&dashboard, GENERIC_CARD, "Luminosity", "lux");
-Card cbatt(&dashboard, GENERIC_CARD, "Batterie voltage", "v");
-Card chumidity(&dashboard, HUMIDITY_CARD, "Humidity", "%");
-Card cmoisture(&dashboard, PROGRESS_CARD, "Soil moisture", "%", 0, 100);
-Card cfertility(&dashboard, GENERIC_CARD, "Soil fertility", "µS/cm");
+Card chumi(&dashboard, HUMIDITY_CARD, "Humidity", "%");
+Card cpres(&dashboard, GENERIC_CARD, "Pressure");
+Card cvoc(&dashboard, GENERIC_CARD, "VOC");
+Card cco2(&dashboard, GENERIC_CARD, "CO2");
+Card airquality(&dashboard, STATUS_CARD, "Air quality", "idle");
 
 bool httpServerBegin_v3()
 {
@@ -354,6 +300,7 @@ bool httpServerBegin_v3()
 }
 
 /* ************************************************************************** */
+/* ************************************************************************** */
 
 void setup()
 {
@@ -365,105 +312,32 @@ void setup()
     ble_setup();
     delay(250);
 
-    bootButton.setLongClickHandler(smartConfigStart);
-    wakeButton.setLongClickHandler(sleepHandler);
+    Wire.begin();
 
-    Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
-    dht.begin();
+    sensor_BME280.setI2CAddress(0x76);
+    sensor_BME280.beginI2C();
+    sensor_BME280.setReferencePressure(101200); // Adjust the sea level pressure used for altitude calculations
 
-    // Sensor power control pin, use detect must set high
-    pinMode(PIN_POWER_CTRL, OUTPUT);
-    digitalWrite(PIN_POWER_CTRL, 1);
-    delay(1000);
+    sensor_HDC1080.begin(0x40);
 
-    Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
-    if (lightMeter.begin(BH1750::CONTINUOUS_LOW_RES_MODE)) {
-        Serial.println(F("BH1750 Advanced begin"));
-    } else {
-        Serial.println(F("Error initialising BH1750"));
-    }
-}
-
-/* ************************************************************************** */
-
-int readLight_i2c()
-{
-    float lux = lightMeter.readLightLevel();
-    if (lux < 0.f) lux = 0.f;
-    if (lux > 1000000.f) lux = 0.f;
-    return (int)lux;
-}
-
-int readLight_adc()
-{
-    int light = map(analogRead(PIN_LIGHT_ADC), 0, 4095, 0, 1023);
-    if (light < 0) light = 0;
-    if (light > 1023) light = 1023;
-    return light;
-}
-
-int readMoisture()
-{
-    // Lilygo doc say it should be [0-4095], but seems to be ~ [1800-3300]
-    int soil = map(analogRead(PIN_MOISTURE), 1800, 3300, 100, 0);
-    if (soil < 0) soil = 0;
-    if (soil > 100) soil = 100;
-    return soil;
-}
-
-int readFertility()
-{
-    uint8_t samples = 120;
-    uint16_t array[120];
-    int humi = 0;
-
-    for (int i = 0; i < samples; i++) {
-        array[i] = analogRead(PIN_FERTILITY);
-        delay(2);
-    }
-    std::sort(array, array + samples);
-    for (int i = 0; i < samples; i++) {
-        if (i == 0 || i == samples - 1) continue;
-        humi += array[i];
-    }
-    humi /= samples - 2;
-    return humi;
-}
-
-float readBatteryVolt()
-{
-    int vref = 1100;
-    uint16_t volt = analogRead(PIN_BAT_ADC);
-    float battery_voltage = (volt / 4095.f) * 2.f * 3.3f * (vref);
-    battery_voltage /= 1000.f; // mV to V
-    return battery_voltage;
-}
-
-int readBatteryPercent()
-{
-    int vref = 1100;
-    uint16_t volt = analogRead(PIN_BAT_ADC);
-    float battery_voltage = (volt / 4095.f) * 2.f * 3.3f * (vref);
-
-    int battery_percent = map(battery_voltage, 3000, 3800, 0, 100);
-    if (battery_percent < 0) battery_percent = 0;
-    if (battery_percent > 100) battery_percent = 100;
-    return battery_percent;
+    sensor_CCS811.begin();
 }
 
 /* ************************************************************************** */
 
 uint64_t timestamp = 0;
 
-float temp = 1.f;
-float humidity = 1.f;
+float temperature_bme280;
+float temperature_hdc1080;
+float humidity_bme280;
+float humidity_hdc1080;
+float pressure_bme280;
+float eCO2_ccs811;
+float tVOC_ccs811;
 
 void loop()
 {
-    bootButton.loop();
-    wakeButton.loop();
-
-    if (millis() - timestamp > 1000)
+    if (millis() - timestamp > 3333)
     {
         timestamp = millis();
         //Serial.print("timestamp: ");
@@ -474,87 +348,77 @@ void loop()
 
         ////////
 
-        float batV = readBatteryVolt();
-        bleBattery[0] = (char)readBatteryPercent();
+        if (sensor_CCS811.dataAvailable())
+        {
+            // Have the sensor read and calculate the results
+            sensor_CCS811.readAlgorithmResults();
 
-        int lux = readLight_i2c();
-        int soilmoisture = readMoisture();
-        int soilfertility = readFertility();
+            temperature_bme280 = sensor_BME280.readTempC();
+            temperature_hdc1080 = sensor_HDC1080.readTemperature();
+            humidity_bme280 = sensor_BME280.readFloatHumidity();
+            humidity_hdc1080 = sensor_HDC1080.readHumidity();
+            pressure_bme280 = sensor_BME280.readFloatPressure() / 100.f;
+            eCO2_ccs811 = sensor_CCS811.getCO2();
+            tVOC_ccs811 = sensor_CCS811.getTVOC();
 
-        float th = dht.readHumidity(false);
-        float tt = dht.readTemperature();
-        if (!isnan(tt) && !isnan(th)) {
-            temp = tt;
-            humidity = th;
-            // Compute heat index and dew point in Celsius (isFahreheit = false)
-            //float hic12 = dht12.computeHeatIndex(temp, humidity, false);
-            //float dpc12 = dht12.dewPoint(temp, humidity, false);
-            //Serial.print("Heat index: "); Serial.println(hic12);
-            //Serial.print("Dew point:  "); Serial.println(dpc12);
-        } else {
-            //Serial.println("[DHT] read error");
+            Serial.print("BME280  Temp[");
+            Serial.print(temperature_bme280, 1);
+            Serial.print("C] RH[");
+            Serial.print(temperature_bme280, 1);
+            Serial.print("%] Pressure[");
+            Serial.print(pressure_bme280, 1);
+            Serial.println("hPa]");
+
+            //Serial.print("Alt[");
+            //Serial.print(sensor_BME280.readFloatAltitudeMeters(), 1);
+            //Serial.print("m ");
+
+            Serial.print("HDC1080 Temp[");
+            Serial.print(temperature_hdc1080);
+            Serial.print("C] RH[");
+            Serial.print(humidity_hdc1080);
+            Serial.println("%]");
+
+            Serial.print("CCS811  CO2[");
+            Serial.print(eCO2_ccs811);
+            Serial.print("] tVOC[");
+            Serial.print(tVOC_ccs811);
+            Serial.print("] sec[");
+            Serial.print(millis()/1000); // uptime
+            Serial.println("]");
+
+            // compensating the CCS811 with humidity and temperature readings (from the HDC1080)
+            sensor_CCS811.setEnvironmentalData(sensor_HDC1080.readHumidity(), sensor_HDC1080.readTemperature());
         }
 
-        ////////
-/*
-        // Recap
-        Serial.println("RECAP 1");
-        Serial.print("- battery v:  "); Serial.println(batV);
-        Serial.print("- battery %:  "); Serial.println(batP);
-        Serial.print("> temp:     "); Serial.println(temp);
-        Serial.print("> humidity: "); Serial.println(humidity);
-        Serial.print("> light:    "); Serial.println(lux);
-        Serial.print("> soil m:   "); Serial.println(soilmoisture);
-        Serial.print("> soil f:   "); Serial.println(soilfertility);
-*/
         ////////
 
         // BLE
         if (bleClientConnected) {
             //Serial.println("bleClientConnected");
 
-            bleBatteryLevel->setValue((uint8_t *)bleBattery, 1);
-
-            uint16_t t = (uint16_t)temp*10;
-            uint8_t h = (uint8_t)humidity;
-            uint32_t l = (uint32_t)lux;
-            uint16_t f = (uint16_t)soilfertility;
-            bleData[0] = (uint8_t)( t        & 0x00FF);
-            bleData[1] = (uint8_t)((t >> 8)  & 0x00FF);
-            bleData[2] = h;
-            bleData[3] = soilmoisture;
-            bleData[4] = (uint8_t)( f        & 0x00FF);
-            bleData[5] = (uint8_t)((f >> 8)  & 0x00FF);
-            bleData[6] = (uint8_t)( l        & 0x000000FF);
-            bleData[7] = (uint8_t)((l >>  8) & 0x000000FF);
-            bleData[8] = (uint8_t)((l >> 16) & 0x000000FF);
+            // TODO
             bleData[15] = '\0';
-
-            bleDataHiGrow->setValue((uint8_t *)bleData, 16);
-            bleDataHiGrow->notify();
 
             if (millis() - bleTimestamp > 60000)
             {
                 Serial.println("- bleClientConnected TIMEOUT");
                 bleServer->disconnect(bleServer->getConnId());
             }
-/*
-            // Recap
-            Serial.println("RECAP BLE");
-            for (int i = 0; i < 16; i++) Serial.print(bleData[i], HEX);
-            Serial.println();
-*/
         }
 
         ////////
 
         // webserver (ESP DASH v3)
-        clux.update(lux);
-        cbatt.update(batV);
-        ctemp.update(temp);
-        chumidity.update((int)humidity);
-        cmoisture.update(soilmoisture);
-        cfertility.update(soilfertility);
+        ctemp.update(temperature_bme280);
+        chumi.update((int)humidity_hdc1080);
+        cpres.update((int)pressure_bme280);
+        cvoc.update((int)tVOC_ccs811);
+        cco2.update((int)eCO2_ccs811);
+
+        if (tVOC_ccs811 > 1000.f || eCO2_ccs811 > 1500.f) airquality.update("danger", "danger");
+        else if (tVOC_ccs811 > 500.f || eCO2_ccs811 > 850.f) airquality.update("warning", "warning");
+        else airquality.update("good", "success");
 
         dashboard.sendUpdates();
     }
