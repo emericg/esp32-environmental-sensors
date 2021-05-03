@@ -4,12 +4,15 @@
 ## About the ESP32 Air Quality Monitor
 
 * The [Air Quality Monitor](https://emeric.io/EnvironmentalSensors/#airqualitymonitor) is meant to keep you alive by monitoring your environment
-* It has sensors to relay temperature, humidity, light intensity, particule levels, CO2 levels, VOC levels and much more...
+* It has sensors to relay temperature, humidity, local air pressure, PM levels, CO2 levels, VOC levels and much more...
 * Uses Bluetooth Low Energy (BLE) and has a limited range
 
 ## Features
 
 * Read real-time sensor values
+* Temperature, humidity and pressure
+* PM levels (particulate matter) (PM 2.5 & 10 µm)
+* TVOC and eCO2 levels
 * Features can be extended through available GPIO and an open firmware
 
 ## Protocol
@@ -23,7 +26,16 @@ The basic technologies behind the sensors communication are [Bluetooth Low Energ
 They allow the devices and the app to share data in a defined manner and define the way you can discover the devices and their services.
 In general you have to know about services and characteristics to talk to a BLE device.
 
-### Services, characteristics and handles
+<img src="endianness.png" width="400px" alt="Endianness" align="right" />
+
+### Data structure
+
+The data is encoded in little-endian byte order.  
+This means that the data is represented with the least significant byte first.
+
+To understand multi-byte integer representation, you can read the [endianness](https://en.wikipedia.org/wiki/Endianness) Wikipedia page.
+
+## Services, characteristics and handles
 
 The name advertised by the device is `AirQualityMonitor`
 
@@ -55,15 +67,6 @@ The name advertised by the device is `AirQualityMonitor`
 | eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | -      | read/notify | get HiGrow realtime data            |
 | eeee9a32-a0d0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Geiger Counter realtime data    |
 
-<img src="endianness.png" width="400px" alt="Endianness" align="right" />
-
-### Data structure
-
-The data is encoded on bytes in little-endian.  
-This means that the data is represented with the least significant byte first.
-
-To understand multi-byte integer representation, you can read the [endianness](https://en.wikipedia.org/wiki/Endianness) Wikipedia page.
-
 ### Real-time data
 
 A read request will return 16 bytes of data, for example `0x00`.  
@@ -71,11 +74,19 @@ You can subscribe to this handle and and receive notifications for new values (o
 
 | Position | 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | 14 | 15 |
 | -------- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
-| Value    | 40 | 01 | 25 | 15 | 00 | 00 | 64 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
+| Value    | 40 | 01 | 25 | D4 | 03 | 90 | 01 | 8A | 02 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
 
-| Bytes | Type       | Value | Description                |
-| ----- | ---------- | ----- | -------------------------- |
-| 00-15 | -          | -     | reserved                   |
+| Bytes | Type       | Value | Description                  |
+| ----- | ---------- | ----- | ---------------------------- |
+| 00-01 | uint16     | 320   | temperature in 0.1 °C        |
+| 02    | uint8      | 37    | humidity in %RH              |
+| 03-04 | uint16     | 980   | local air pressure in hPa    |
+| 05-06 | uint16     | 400   | tVOC                         |
+| 07-08 | uint16     | 650   | eCO2                         |
+
+#### Historical data
+
+None yet
 
 ### Advertisement data
 

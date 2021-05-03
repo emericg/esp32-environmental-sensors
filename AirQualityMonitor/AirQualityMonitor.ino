@@ -337,7 +337,7 @@ float tVOC_ccs811;
 
 void loop()
 {
-    if (millis() - timestamp > 3333)
+    if (millis() - timestamp > 2500)
     {
         timestamp = millis();
         //Serial.print("timestamp: ");
@@ -361,34 +361,27 @@ void loop()
             eCO2_ccs811 = sensor_CCS811.getCO2();
             tVOC_ccs811 = sensor_CCS811.getTVOC();
 
-            Serial.print("BME280  Temp[");
-            Serial.print(temperature_bme280, 1);
-            Serial.print("C] RH[");
-            Serial.print(temperature_bme280, 1);
-            Serial.print("%] Pressure[");
-            Serial.print(pressure_bme280, 1);
-            Serial.println("hPa]");
+            Serial.print("BME280  Temp["); Serial.print(temperature_bme280, 1);
+            Serial.print("C] RH["); Serial.print(humidity_bme280, 1);
+            Serial.print("%] Pressure["); Serial.print(pressure_bme280, 0);
+            Serial.println("hPa] ");
 
-            //Serial.print("Alt[");
-            //Serial.print(sensor_BME280.readFloatAltitudeMeters(), 1);
-            //Serial.print("m ");
+            //Serial.print("Alt["); Serial.print(sensor_BME280.readFloatAltitudeMeters(), 0);
+            //Serial.println("m] ");
 
-            Serial.print("HDC1080 Temp[");
-            Serial.print(temperature_hdc1080);
-            Serial.print("C] RH[");
-            Serial.print(humidity_hdc1080);
-            Serial.println("%]");
+            Serial.print("HDC1080 Temp["); Serial.print(temperature_hdc1080, 1);
+            Serial.print("C] RH["); Serial.print(humidity_hdc1080, 1);
+            Serial.println("%] ");
 
-            Serial.print("CCS811  CO2[");
-            Serial.print(eCO2_ccs811);
-            Serial.print("] tVOC[");
-            Serial.print(tVOC_ccs811);
-            Serial.print("] sec[");
-            Serial.print(millis()/1000); // uptime
-            Serial.println("]");
+            Serial.print("CCS811  CO2["); Serial.print(eCO2_ccs811, 0);
+            Serial.print("] tVOC["); Serial.print(tVOC_ccs811, 0);
+            Serial.println("] ");
 
-            // compensating the CCS811 with humidity and temperature readings (from the HDC1080)
-            sensor_CCS811.setEnvironmentalData(sensor_HDC1080.readHumidity(), sensor_HDC1080.readTemperature());
+            //Serial.print("uptime["); Serial.print(millis()/1000);
+            //Serial.println("s] ");
+
+            // compensating the CCS811 with humidity and temperature readings
+            sensor_CCS811.setEnvironmentalData(humidity_hdc1080, temperature_hdc1080);
         }
 
         ////////
@@ -397,8 +390,24 @@ void loop()
         if (bleClientConnected) {
             //Serial.println("bleClientConnected");
 
-            // TODO
+            uint16_t t = (uint16_t)temperature_hdc1080*10;
+            uint8_t h = (uint8_t)humidity_hdc1080;
+            uint16_t p = (uint16_t)pressure_bme280;
+            uint16_t v = (uint16_t)tVOC_ccs811;
+            uint16_t c = (uint16_t)eCO2_ccs811;
+            bleData[0] = (uint8_t)( t        & 0x00FF);
+            bleData[1] = (uint8_t)((t >> 8)  & 0x00FF);
+            bleData[2] = h;
+            bleData[3] = (uint8_t)( p        & 0x00FF);
+            bleData[4] = (uint8_t)((p >> 8)  & 0x00FF);
+            bleData[5] = (uint8_t)( v        & 0x00FF);
+            bleData[6] = (uint8_t)((v >> 8)  & 0x00FF);
+            bleData[7] = (uint8_t)( c        & 0x00FF);
+            bleData[8] = (uint8_t)((c >> 8)  & 0x00FF);
             bleData[15] = '\0';
+
+            bleDataAir_rt->setValue((uint8_t *)bleData, 16);
+            bleDataAir_rt->notify();
 
             if (millis() - bleTimestamp > 60000)
             {
@@ -410,7 +419,7 @@ void loop()
         ////////
 
         // webserver (ESP DASH v3)
-        ctemp.update(temperature_bme280);
+        ctemp.update(temperature_hdc1080);
         chumi.update((int)humidity_hdc1080);
         cpres.update((int)pressure_bme280);
         cvoc.update((int)tVOC_ccs811);

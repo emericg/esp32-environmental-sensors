@@ -4,17 +4,22 @@
 ## About HiGrow
 
 * [HiGrow sensors](https://emeric.io/EnvironmentalSensors/#higrow) are meant to keep your plants alive by monitoring their environment
-* Has sensors to relay temperature, humidity, light intensity, soil moisture and soil fertility (via electrical conductivity)
+* Has sensors to relay temperature, humidity, light intensity, soil moisture and fertility (via electrical conductivity)
 * Uses Bluetooth Low Energy (BLE) and has a limited range
-* A lipo battery can be used (charging via USB)
+* A lipo or a 18650 battery can be used (charging via USB)
 
 Boards are available from LilyGo or Weemo Chinese manufacturers.
 
-I would not recommend an HiGrow for serious plant monitoring, only for tinkering with an esp32 board with onboard sensors.
+I would not recommend an HiGrow for serious plant monitoring, only for tinkering with an esp32 board with onboard sensors.  
+The API described below is only available with a [custom firmware](https://github.com/emericg/esp32-environmental-sensors/tree/master/HiGrow).
 
 ## Features
 
 * Read real-time sensor values
+* Temperature
+* Light Monitor
+* Soil moisture
+* Soil fertility
 * Features can be extended through available GPIO and an open firmware
 
 ## Protocol
@@ -28,7 +33,16 @@ The basic technologies behind the sensors communication are [Bluetooth Low Energ
 They allow the devices and the app to share data in a defined manner and define the way you can discover the devices and their services.
 In general you have to know about services and characteristics to talk to a BLE device.
 
-### Services, characteristics and handles
+<img src="endianness.png" width="400px" alt="Endianness" align="right" />
+
+### Data structure
+
+The data is encoded in little-endian byte order.  
+This means that the data is represented with the least significant byte first.
+
+To understand multi-byte integer representation, you can read the [endianness](https://en.wikipedia.org/wiki/Endianness) Wikipedia page.
+
+## Services, characteristics and handles
 
 The name advertised by the device is `HiGrow`
 
@@ -59,15 +73,6 @@ The name advertised by the device is `HiGrow`
 | eeee9a32-a0b0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Weather Station realtime data   |
 | eeee9a32-a0c0-4cbd-b00b-6b519bf2780f | -      | read/notify | get HiGrow realtime data            |
 | eeee9a32-a0d0-4cbd-b00b-6b519bf2780f | -      | read/notify | get Geiger Counter realtime data    |
-
-<img src="endianness.png" width="400px" alt="Endianness" align="right" />
-
-### Data structure
-
-The data is encoded on bytes in little-endian.  
-This means that the data is represented with the least significant byte first.
-
-To understand multi-byte integer representation, you can read the [endianness](https://en.wikipedia.org/wiki/Endianness) Wikipedia page.
 
 ### Name
 
@@ -122,6 +127,10 @@ You can subscribe to this handle and and receive notifications for new values (o
 | 04-05 | uint16     | 178   | soil conductivity in µS/cm |
 | 06-08 | uint24     | 100   | brightness in lux          |
 | 09-15 | -          | -     | reserved                   |
+
+#### Historical data
+
+None yet
 
 ### Advertisement data
 
