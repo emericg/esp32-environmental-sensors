@@ -9,12 +9,16 @@ Unfortunately these changes are not particularly straightforward to deploy, and 
 
 Change the title in the file `ESP-DASH/vue-frontend/src/main.js` as you see fit, or like this:
 ```
-document.title = title+" - Geiger Counter";
+document.title = "Geiger Counter" + " - " + title;
 ```
 
-Change the img tag in the file `ESP-DASH/vue-frontend/src/components/NavBar.vue` with a new base64 encoded logo file, like this:
+Replace the svg tag at the begining of the file `ESP-DASH/vue-frontend/src/components/NavBar.vue` with the one from the navbar_logo.svg:
 ```
-<img src="INSERT logo.base64 CONTENT HERE" alt="Geiger Counter">
+<router-link class="navbar-item" to="/">
+  <svg
+    CONTENT FROM navbar_logo.svg
+  </svg>
+</router-link>
 ```
 
 ### Deploy

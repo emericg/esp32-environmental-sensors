@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg4"
+   version="1.1"
+   viewBox="0 0 400 56"
+   role="img"
+   class="svg-inline--fa fa-lungs fa-w-20"
+   data-icon="lungs"
+   data-prefix="fas"
+   focusable="false"
+   aria-hidden="true"
+   width="400"
+   height="56"
+   sodipodi:docname="navbar_logo.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2435"
+     inkscape:window-height="1309"
+     id="namedview8"
+     showgrid="false"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-nodes="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-page="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:zoom="3.6166858"
+     inkscape:cx="161.57423"
+     inkscape:cy="35.005634"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <path
+     style="fill:#848e98;fill-opacity:1;stroke-width:0.108483"
+     id="path2"
+     d="m 68.446059,42.672532 c -2.331715,-8.892158 -6.029955,-17.40698 -10.976365,-25.267738 -2.380149,-3.781082 -3.881185,-6.904823 -8.613465,-6.904823 -4.163075,0 -7.537443,3.217802 -7.537443,7.18701 v 6.574513 L 37.780855,21.864001 A 1.7211852,1.7495573 0 0 1 37.01474,20.408224 V 1.7499952 C 37.01474,0.78312292 36.24432,1.2478559e-7 35.293116,1.2478559e-7 H 33.571501 C 32.620315,1.2478559e-7 31.849886,0.78312292 31.849886,1.7499952 V 20.408224 c 0,0.585154 -0.287289,1.130934 -0.766106,1.455777 l -3.537923,2.397493 v -6.574513 c 0,-3.969208 -3.374367,-7.18701 -7.537451,-7.18701 -4.732289,0 -6.233325,3.123741 -8.613447,6.904823 C 6.448522,25.265552 2.750282,33.780374 0.418565,42.672532 0.139877,43.732374 0,44.820654 0,45.913305 c 0,6.697019 6.722914,11.53247 13.475945,9.69279 l 6.40227,-1.744526 c 4.53859,-1.235934 7.667642,-5.192013 7.667642,-9.69279 v -9.56919 l -9.236465,6.259512 a 0.85994705,0.87412248 0 0 1 -1.193298,-0.24281 l -0.955509,-1.455777 a 0.85994705,0.87412248 0 0 1 0.238884,-1.212966 l 18.032848,-12.21934 18.032849,12.21934 a 0.8601623,0.87434132 0 0 1 0.238875,1.212966 l -0.9555,1.455777 a 0.8601623,0.87434132 0 0 1 -1.19329,0.24281 l -9.236465,-6.259512 v 9.56919 c 0,4.500777 3.129035,8.455763 7.667643,9.69279 l 6.402252,1.744526 c 6.75304,1.83968 13.475958,-2.995771 13.475958,-9.69279 0,-1.092651 -0.13989,-2.180931 -0.41858,-3.240773 z"
+     fill="currentColor" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:32px;line-height:1.15;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.4375"
+     x="88.757683"
+     y="40.027359"
+     id="text832"><tspan
+       x="88.757683"
+       y="40.027359"
+       id="tspan834"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:32px;font-family:Lato;-inkscape-font-specification:'Lato Bold';stroke-width:0.4375">Air Quality Monitor</tspan></text>
+</svg>

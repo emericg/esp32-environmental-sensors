@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg4"
+   version="1.1"
+   viewBox="0 0 320 56"
+   role="img"
+   class="svg-inline--fa fa-lungs fa-w-20"
+   data-icon="lungs"
+   data-prefix="fas"
+   focusable="false"
+   aria-hidden="true"
+   width="320"
+   height="56"
+   sodipodi:docname="navbar_logo.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2435"
+     inkscape:window-height="1309"
+     id="namedview8"
+     showgrid="false"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-nodes="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-page="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:zoom="4.1984682"
+     inkscape:cx="189.11136"
+     inkscape:cy="35.873667"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:32px;line-height:1.15;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.4375"
+     x="82.757683"
+     y="40.027359"
+     id="text832"><tspan
+       x="82.757683"
+       y="40.027359"
+       id="tspan834"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:32px;font-family:Lato;-inkscape-font-specification:'Lato Bold';stroke-width:0.4375">Geiger Counter</tspan></text>
+  <path
+     fill="currentColor"
+     d="m 40.839275,25.252463 h 18.86232 c 1.13224,0 2.0903,-0.953892 2.01564,-2.08122 -0.63455,-9.390262 -5.52432,-17.616031 -12.75322,-22.81908085 -0.92072,-0.65657699 -2.22715,-0.3592611 -2.82438,0.59463492 L 36.136145,16.853258 c 2.81193,1.771512 4.70313,4.856177 4.70313,8.399205 z m -4.70313,8.386817 c -1.53039,0.953896 -3.3345,1.536138 -5.27548,1.536138 -1.94098,0 -3.73266,-0.582242 -5.27549,-1.536138 L 15.581682,49.558132 c -0.597227,0.953887 -0.298614,2.242263 0.696761,2.774957 C 20.620765,54.662071 25.585175,56 30.860665,56 c 5.27548,0 10.23989,-1.337929 14.58221,-3.666911 0.99538,-0.532694 1.29399,-1.833454 0.69676,-2.774957 z m -5.27548,-2.440472 c 3.29717,0 5.97224,-2.663467 5.97224,-5.946345 0,-3.282874 -2.67507,-5.94634 -5.97224,-5.94634 -3.29718,0 -5.97225,2.663466 -5.97225,5.94634 0,3.282878 2.67507,5.946345 5.97225,5.946345 z M 2.0197205,25.252463 H 20.882045 c 0,-3.543028 1.89121,-6.627693 4.70313,-8.386818 L 15.581682,0.95918536 C 14.984455,0.00528935 13.678034,-0.30441484 12.757308,0.36455055 5.5284125,5.5675961 0.63864155,13.793369 0.00408555,23.183631 c -0.07462,1.11494 0.883397,2.068832 2.01563495,2.068832 z"
+     id="path2-3"
+     style="fill:#848e98;fill-opacity:1;stroke-width:0.124152" />
+</svg>
