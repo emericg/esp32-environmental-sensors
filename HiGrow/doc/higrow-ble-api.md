@@ -119,14 +119,16 @@ You can subscribe to this handle and and receive notifications for new values (o
 | -------- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
 | Value    | 40 | 01 | 25 | 15 | 00 | 00 | 64 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
 
-| Bytes | Type       | Value | Description                |
-| ----- | ---------- | ----- | -------------------------- |
-| 00-01 | uint16     | 320   | temperature in 0.1 °C      |
-| 02    | uint8      | 37    | humidity in %              |
-| 03    | uint8      | 21    | soil moisture in %         |
-| 04-05 | uint16     | 178   | soil conductivity in µS/cm |
-| 06-08 | uint24     | 100   | brightness in lux          |
-| 09-15 | -          | -     | reserved                   |
+| Bytes | Type       | Value | Description                  | Notes                                     |
+| ----- | ---------- | ----- | ---------------------------- |------------------------------------------ |
+| 00    | uint8      | 21    | soil moisture (in %RH)       |                                           |
+| 01-02 | uint16     | 178   | soil conductivity (in µS/cm) |                                           |
+| 03-04 | uint16     | 220   | soil temperature (in 0.1 °C) | If a DS18B20 is plugged                   |
+| 05-06 | uint16     | 320   | temperature (in 0.1 °C)      |                                           |
+| 07    | uint8      | 37    | humidity (in %RH)            |                                           |
+| 08-10 | uint24     | 100   | brightness (in lux)          |                                           |
+| 11-12 | uint16     | 1013  | air pressure (in hPa)        | If HiGrow has a BME280 instead of a DHTxx |
+| 13-15 | -          | -     | reserved                     |                                           |
 
 #### Historical data
 

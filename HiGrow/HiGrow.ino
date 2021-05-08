@@ -18,6 +18,7 @@
  * - BH1750 library
  * - DHT library (for DTH11, DTH21, DTH22)
  * - DHT12 library (for DHT12)
+ * - Adafruit BME280 library (only if BME280 available)
  */
 
 #include <algorithm>
@@ -57,6 +58,7 @@
 #define PIN_POWER_CTRL      -1
 #define PIN_LED             16 // blue LED
 #define PIN_DHT             22
+#define PIN_DS18B20         -1
 #define PIN_I2C_SDA         -1
 #define PIN_I2C_SCL         -1
 #define PIN_MOISTURE        32
@@ -70,6 +72,7 @@
 #define PIN_POWER_CTRL       4
 #define PIN_LED             -1
 #define PIN_DHT             16
+#define PIN_DS18B20         21
 #define PIN_I2C_SDA         25
 #define PIN_I2C_SCL         26
 #define PIN_MOISTURE        32
@@ -77,9 +80,13 @@
 #define PIN_BAT_ADC         33
 #define PIN_FERTILITY       34
 
+#define ADDRESS_BH1750    0x23
+#define ADDRESS_SHT3X     0x44
+#define ADDRESS_BME280    0x77
+
 /* ************************************************************************** */
 
-BH1750 lightMeter(0x23);
+BH1750 lightMeter(ADDRESS_BME280);
 DHT dht(PIN_DHT, DHT11);        // For DHT11 / DHT21 / DHT22
 //DHT12 dht(PIN_DHT, true);     // For DHT12
 
@@ -455,7 +462,7 @@ int readBatteryPercent()
 
 uint64_t timestamp = 0;
 
-float temp = 1.f;
+float temperature = 1.f;
 float humidity = 1.f;
 
 void loop()
@@ -480,15 +487,16 @@ void loop()
         int lux = readLight_i2c();
         int soilmoisture = readMoisture();
         int soilfertility = readFertility();
+        float soiltemperature = 0;
 
         float th = dht.readHumidity(false);
         float tt = dht.readTemperature();
         if (!isnan(tt) && !isnan(th)) {
-            temp = tt;
+            temperature = tt;
             humidity = th;
             // Compute heat index and dew point in Celsius (isFahreheit = false)
-            //float hic12 = dht12.computeHeatIndex(temp, humidity, false);
-            //float dpc12 = dht12.dewPoint(temp, humidity, false);
+            //float hic12 = dht12.computeHeatIndex(temperature, humidity, false);
+            //float dpc12 = dht12.dewPoint(temperature, humidity, false);
             //Serial.print("Heat index: "); Serial.println(hic12);
             //Serial.print("Dew point:  "); Serial.println(dpc12);
         } else {
@@ -501,11 +509,12 @@ void loop()
         Serial.println("RECAP 1");
         Serial.print("- battery v:  "); Serial.println(batV);
         Serial.print("- battery %:  "); Serial.println(batP);
-        Serial.print("> temp:     "); Serial.println(temp);
+        Serial.print("> temperature:"); Serial.println(temperature);
         Serial.print("> humidity: "); Serial.println(humidity);
         Serial.print("> light:    "); Serial.println(lux);
         Serial.print("> soil m:   "); Serial.println(soilmoisture);
         Serial.print("> soil f:   "); Serial.println(soilfertility);
+        Serial.print("> soil t:   "); Serial.println(soiltemperature);
 */
         ////////
 
@@ -515,19 +524,24 @@ void loop()
 
             bleBatteryLevel->setValue((uint8_t *)bleBattery, 1);
 
-            uint16_t t = (uint16_t)temp*10;
-            uint8_t h = (uint8_t)humidity;
+            uint16_t sc = (uint16_t)soilfertility;
+            uint16_t st = 0;
+            uint16_t t = (uint16_t)(temperature*10.f);
             uint32_t l = (uint32_t)lux;
-            uint16_t f = (uint16_t)soilfertility;
-            bleData[0] = (uint8_t)( t        & 0x00FF);
-            bleData[1] = (uint8_t)((t >> 8)  & 0x00FF);
-            bleData[2] = h;
-            bleData[3] = soilmoisture;
-            bleData[4] = (uint8_t)( f        & 0x00FF);
-            bleData[5] = (uint8_t)((f >> 8)  & 0x00FF);
-            bleData[6] = (uint8_t)( l        & 0x000000FF);
-            bleData[7] = (uint8_t)((l >>  8) & 0x000000FF);
-            bleData[8] = (uint8_t)((l >> 16) & 0x000000FF);
+            uint16_t p = 0;
+            bleData[0] = (uint8_t)soilmoisture;
+            bleData[1] = (uint8_t)( sc       & 0x00FF);
+            bleData[2] = (uint8_t)((sc >> 8) & 0x00FF);
+            bleData[3] = (uint8_t)( st       & 0x00FF);
+            bleData[4] = (uint8_t)((st >> 8) & 0x00FF);
+            bleData[5] = (uint8_t)( t        & 0x00FF);
+            bleData[6] = (uint8_t)((t >> 8)  & 0x00FF);
+            bleData[7] = (uint8_t)humidity;
+            bleData[8] = (uint8_t)( l        & 0x000000FF);
+            bleData[9] = (uint8_t)((l >>  8) & 0x000000FF);
+            bleData[10] = (uint8_t)((l >> 16) & 0x000000FF);
+            bleData[11] = (uint8_t)( p        & 0x00FF);
+            bleData[12] = (uint8_t)((p >> 8)  & 0x00FF);
             bleData[15] = '\0';
 
             bleDataHiGrow->setValue((uint8_t *)bleData, 16);
@@ -551,7 +565,7 @@ void loop()
         // webserver (ESP DASH v3)
         clux.update(lux);
         cbatt.update(batV);
-        ctemp.update(temp);
+        ctemp.update(temperature);
         chumidity.update((int)humidity);
         cmoisture.update(soilmoisture);
         cfertility.update(soilfertility);
