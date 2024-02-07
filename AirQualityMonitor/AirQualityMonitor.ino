@@ -7,7 +7,7 @@
  *
  * Dependencies:
  * - ESP32 platform plugin
- * - ESPDash (v3)
+ * - ESPDash
  *   - AsyncTCP
  *   - Arduino JSON
  * - Button2 library

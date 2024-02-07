@@ -11,14 +11,15 @@ Sensors:
 * Plantower PMS7003
 
 Works with:
+* ESP Dash (v4) web interface
 * ESP Dash (v3) web interface ([customizations](espdash/README.md))
 * Bluetooth Low Energy API ([documentation](doc/geigercounter-ble-api.md))
 
 ### Dependencies
 
 - Arduino IDE
-- ESP32 platform plugin
-- ESPDash (v3)
+- ESP32 platform plugin (v1 or v2)
+- ESPDash (v3 or v4)
   - AsyncTCP
   - Arduino JSON
 - Button2 library
@@ -32,8 +33,8 @@ TODO
 
 ### ESP32 settings
 
-* 80 MHz CPU and 40 MHz flash frequencies are fine
-* 2 MB APP and 2 MB FATFS partition scheme is requiered
+* 80 MHz CPU and 40 MHz flash frequencies are fine, use more if you want a (bit) more responsive web interface
+* 2 MB APP and 2 MB FATFS partition scheme is required (needs more than 1 MB for the app)
 
 ### Firmware
 
